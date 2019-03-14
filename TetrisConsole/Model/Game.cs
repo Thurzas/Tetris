@@ -11,7 +11,7 @@ namespace Tetris.Model
 		public int nFieldHeight;
 		public int nFieldWidth;
 		public int[] pField;
-		public int speed=30;
+		public int speed=5000;
 		public int score;
 		public Tetrimino t;
 		private Random rng;
@@ -21,14 +21,22 @@ namespace Tetris.Model
 			nFieldHeight = 18;
 			nFieldWidth = 12;
 			pField = new int[(nFieldHeight+2) * (nFieldWidth+2)];
-			for (int i = 0; i < nFieldWidth+2; i++)
+			for (int x = 0; x < nFieldWidth+2; x++)
 			{
-				pField[i + nFieldHeight*(nFieldWidth+2)]=-1;
+				pField[x + (nFieldHeight+1)*(nFieldWidth+2)]=-1;
+				pField[x] = -1;
 			}
-			for (int y = 1; y < nFieldHeight; y++)
+
+			for (int y = 0; y < nFieldHeight + 2; y++)
+			{
+				pField[y * (nFieldWidth + 2)] = -1;
+				pField[y * (nFieldWidth + 2) + nFieldWidth + 1] = -1;
+			}
+
+			for (int y = 1; y < nFieldHeight+1; y++)
 			{
 
-				for (int x = 1; x < nFieldWidth; x++)
+				for (int x = 1; x < nFieldWidth+1; x++)
 				{
 					pField[x + y*(nFieldWidth+2)] = 0;
 				}
@@ -55,15 +63,14 @@ namespace Tetris.Model
 					t = new O(new Vector2((int)((nFieldWidth + 2) / 4), 1), 0, nb + 1);
 					break;
 				case 4:
-					t = new S(new Vector2((int)((nFieldWidth + 2) / 4), 0), 0, nb + 1);
+					t = new S(new Vector2((int)((nFieldWidth + 2) / 4), 1), 0, nb + 1);
 					break;
 				case 5:
-					t = new T(new Vector2((int)((nFieldWidth + 2) / 4), 0), 0, nb + 1);
+					t = new T(new Vector2((int)((nFieldWidth + 2) / 4), 1), 0, nb + 1);
 					break;
 				case 6:
-					t = new Z(new Vector2((int)((nFieldWidth + 2) / 4), 0), 0, nb + 1);
+					t = new Z(new Vector2((int)((nFieldWidth + 2) / 4), 1), 0, nb + 1);
 					break;
-
 			}
 		}
 
@@ -97,11 +104,11 @@ namespace Tetris.Model
 
 			visited[(int)(pivot.X + pivot.Y * t.Size)] = true;
 
-			if (t.coords.X < 0 ||
-				t.coords.Y < 0 ||
+			if (t.coords.X < -1 ||
+				t.coords.Y < -1 ||
 				t.coords.X > nFieldWidth+2 - t.Size  ||
-				t.coords.Y > nFieldHeight+1 - t.Size ||
-				pField[(int)(t.coords.X + pivot.X + (t.coords.Y + pivot.Y) * ( nFieldWidth + 2 ))] > 0)
+				t.coords.Y > nFieldHeight+2 - t.Size ||
+				pField[(int)(t.coords.X + pivot.X + (t.coords.Y + pivot.Y) * ( nFieldWidth + 2 ))] != 0)
 			{
 				collide = false;
 				return;
@@ -157,10 +164,7 @@ namespace Tetris.Model
 		{
 			bool[] visited = new bool[16];
 			bool res = true;
-
-			//			Tetrimino tmp = new I(coords, t.rotateCrt, t.colors);
-			//			tmp.grid = t.grid;
-			Tetrimino tmp = TetrisConsole.Model.Tetriminos.DeepCloner.Clone(t); //passage par référence...
+			Tetrimino tmp = TetrisConsole.Model.Tetriminos.DeepCloner.Clone(t);
 			tmp.coords = coords;
 			SweapPiecePosition();
 			FloodFill(tmp, tmp.pivot, tmp.colors, visited, ref res);
@@ -173,11 +177,9 @@ namespace Tetris.Model
 			bool[] visited = new bool[t.Size * t.Size];
 			bool res = true;
 			int rotate = 1;
-			//			Tetrimino tmp = new I(coords, t.rotateCrt, t.colors);
-			//			tmp.grid = t.grid;
 			SweapPiecePosition();
 			bool continu = true;
-			Tetrimino tmp = TetrisConsole.Model.Tetriminos.DeepCloner.Clone(t); //passage par référence...
+			Tetrimino tmp = TetrisConsole.Model.Tetriminos.DeepCloner.Clone(t);
 			while(continu&&rotate<4)
 			{
 				tmp.Rotate();
@@ -204,9 +206,10 @@ namespace Tetris.Model
 			SweapPiecePosition();
 			for (int Y = y; Y > 0; Y--)
 			{
-				for (int x = 0; x < nFieldWidth; x++)
+				for (int x = 1; x < nFieldWidth + 1; x++)
 				{
-					pField[x + nFieldWidth * Y] = pField[x + nFieldWidth * (Y-1)];
+					pField[x + (nFieldWidth + 2) * Y] = pField[x + (nFieldWidth + 2) * (Y - 1)];
+					pField[x + (nFieldWidth + 2) * 1] = 0;
 				}
 			}
 			PrintPiece();
@@ -215,19 +218,16 @@ namespace Tetris.Model
 		public int CheckLines()
 		{
 			int Line = 0;
-			for (int y = 0; y < nFieldHeight; y++)
+			for (int y = 0; y < nFieldHeight+1; y++)
 			{
 				bool full = true;
-				for (int x = 0; x < nFieldWidth; x++)
+				for (int x = 0; x < nFieldWidth + 2; x++)
 				{
-					full = full && pField[x + nFieldWidth * y] != 0;
+					if(pField[x + (nFieldWidth + 2) * y]!=-1)
+						full = full && pField[x + (nFieldWidth + 2) * y] != 0;
 				}
 				if(full)
 				{
-					for (int i = 0; i < 100; i++)
-					{
-						Console.WriteLine(y);
-					}
 					Line++;
 					deleteLine(y);
 				}
@@ -239,9 +239,9 @@ namespace Tetris.Model
 		{
 			bool res = false;
 
-			for (int x = 0; x < nFieldWidth; x++)
+			for (int x = 0; x < (nFieldWidth + 2); x++)
 			{
-				if (pField[x + nFieldWidth * 0] > 0)
+				if (pField[x + (nFieldWidth + 2) * 1] > 0)
 					res = true;
 			}
 			return res&&isCurrentPieceFallen();
@@ -264,7 +264,7 @@ namespace Tetris.Model
 		public bool isCurrentPieceFallen()
 		{
 			bool res = false;
-			if (isCurrentPieceMovable(new Vector2(t.coords.X, t.coords.Y + 1)))
+			if (!isCurrentPieceMovable(new Vector2(t.coords.X, t.coords.Y + 1)))
 				res = true;
 			return res;
 		}

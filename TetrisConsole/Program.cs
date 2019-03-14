@@ -3,6 +3,8 @@ using System.Threading;
 using Tetris.Model;
 using Tetris.Model.Tetriminos;
 using System.Numerics;
+using System.Timers;
+
 namespace Tetris
 {
 	class Program
@@ -34,7 +36,9 @@ namespace Tetris
 			};
 */			play.PrintPiece();
 			Show();
-			while (!play.isGameOver())
+			System.Timers.Timer aTimer = new System.Timers.Timer();
+			aTimer.Interval = 5000;
+			aTimer.Enabled = true; while (!play.isGameOver())
 			{
 				if(Console.KeyAvailable)
 				{
@@ -65,22 +69,28 @@ namespace Tetris
 					}
 					Show();
 				}
-				Thread.Sleep(1000/play.speed);
-				play.MovePiece();
+				if(play.isCurrentPieceFallen())
+				{
+					play.CheckLines();
+					play.GetCurrentPiece();
+				}
 			}
+			Show();
 			Console.Read();
 		}
 
 		static void Show()
 		{
 			Console.Clear();
-			for (int y = 0; y < play.nFieldHeight; y++)
+			for (int y = 0; y < play.nFieldHeight+2; y++)
 			{
-				Console.Write("#");
-				for (int x = 0; x < play.nFieldWidth; x++)
+				for (int x = 0; x < play.nFieldWidth+2; x++)
 				{					
-					switch (play.pField[x + y * (play.nFieldWidth)])
+					switch (play.pField[x + y * (play.nFieldWidth+2)])
 					{
+						case -1:
+							Console.Write("#");
+							break;
 						case 0:
 							Console.Write(" ");
 							break;
@@ -107,11 +117,6 @@ namespace Tetris
 							break;
 					}
 				}
-				Console.WriteLine("# "+(y+1));
-			}
-			for (int i = 0; i < play.nFieldWidth+2; i++)
-			{
-				Console.Write("#");
 			}
 			Console.Write(play.isGameOver());
 		}
