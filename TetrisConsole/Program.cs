@@ -3,7 +3,6 @@ using System.Threading;
 using Tetris.Model;
 using Tetris.Model.Tetriminos;
 using System.Numerics;
-using System.Timers;
 
 namespace Tetris
 {
@@ -36,9 +35,8 @@ namespace Tetris
 			};
 */			play.PrintPiece();
 			Show();
-			System.Timers.Timer aTimer = new System.Timers.Timer();
-			aTimer.Interval = 5000;
-			aTimer.Enabled = true; while (!play.isGameOver())
+			Timer timer = new Timer(TimerCallback, null, 0, 1000);
+			while (!play.isGameOver())
 			{
 				if(Console.KeyAvailable)
 				{
@@ -69,14 +67,31 @@ namespace Tetris
 					}
 					Show();
 				}
-				if(play.isCurrentPieceFallen())
-				{
-					play.CheckLines();
-					play.GetCurrentPiece();
-				}
 			}
 			Show();
 			Console.Read();
+		}
+
+		private static void TimerCallback(Object o)
+		{
+			if (play.isCurrentPieceFallen())
+			{
+				int lines = play.CheckLines();
+				if (lines > 0)
+				{
+					play.SetScore(lines);
+				}
+				play.GetCurrentPiece();
+			}
+			else
+			{
+				play.Down();
+				Show();
+			}
+			// Display the date/time when this method got called.
+			Console.WriteLine("In TimerCallback: " + DateTime.Now);
+			// Force a garbage collection to occur for this demo.
+			GC.Collect();
 		}
 
 		static void Show()
@@ -85,7 +100,7 @@ namespace Tetris
 			for (int y = 0; y < play.nFieldHeight+2; y++)
 			{
 				for (int x = 0; x < play.nFieldWidth+2; x++)
-				{					
+				{
 					switch (play.pField[x + y * (play.nFieldWidth+2)])
 					{
 						case -1:
@@ -117,6 +132,14 @@ namespace Tetris
 							break;
 					}
 				}
+				if (y == 2)
+					Console.WriteLine("SCORE : " + play.Score);
+				else if (y == 3)
+					Console.WriteLine("LEVEL : " + play.Level);
+				else if(y == 4)
+					Console.WriteLine("LINES : " + play.Lines);
+				else
+					Console.WriteLine();
 			}
 			Console.Write(play.isGameOver());
 		}

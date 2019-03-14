@@ -11,8 +11,10 @@ namespace Tetris.Model
 		public int nFieldHeight;
 		public int nFieldWidth;
 		public int[] pField;
-		public int speed=5000;
-		public int score;
+		public int speed=1000;
+		public int Score;
+		public int Level;
+		public int Lines;
 		public Tetrimino t;
 		private Random rng;
 		public Game()
@@ -41,7 +43,8 @@ namespace Tetris.Model
 					pField[x + y*(nFieldWidth+2)] = 0;
 				}
 			}
-			score = 0;
+			Score = 0;
+			Level = 1;
 			GetCurrentPiece();
 		}
 
@@ -203,7 +206,6 @@ namespace Tetris.Model
 
 		public void deleteLine(int y)
 		{
-			SweapPiecePosition();
 			for (int Y = y; Y > 0; Y--)
 			{
 				for (int x = 1; x < nFieldWidth + 1; x++)
@@ -212,13 +214,12 @@ namespace Tetris.Model
 					pField[x + (nFieldWidth + 2) * 1] = 0;
 				}
 			}
-			PrintPiece();
 		}
 
 		public int CheckLines()
 		{
 			int Line = 0;
-			for (int y = 0; y < nFieldHeight+1; y++)
+			for (int y = 1; y < nFieldHeight+1; y++)
 			{
 				bool full = true;
 				for (int x = 0; x < nFieldWidth + 2; x++)
@@ -259,6 +260,13 @@ namespace Tetris.Model
 			{
 				Down();
 			}
+		}
+
+		public void SetScore(int Lines)
+		{
+			this.Lines += Lines;
+			Score+=Level*(int)Math.Pow(10,Lines);
+			Level = (this.Lines / 10)+1;
 		}
 
 		public bool isCurrentPieceFallen()
