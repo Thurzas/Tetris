@@ -1,0 +1,7 @@
+C:\Users\Thurzas\source\repos\TetrisConsole\TetrisConsole\obj\Debug\TetrisConsole.csproj.CoreCompileInputs.cache
+C:\Users\Thurzas\source\repos\TetrisConsole\TetrisConsole\bin\Debug\TetrisConsole.exe.config
+C:\Users\Thurzas\source\repos\TetrisConsole\TetrisConsole\bin\Debug\TetrisConsole.exe
+C:\Users\Thurzas\source\repos\TetrisConsole\TetrisConsole\bin\Debug\TetrisConsole.pdb
+C:\Users\Thurzas\source\repos\TetrisConsole\TetrisConsole\obj\Debug\TetrisConsole.exe
+C:\Users\Thurzas\source\repos\TetrisConsole\TetrisConsole\obj\Debug\TetrisConsole.pdb
+C:\Users\Thurzas\source\repos\TetrisConsole\TetrisConsole\obj\Debug\TetrisConsole.csprojAssemblyReference.cache
